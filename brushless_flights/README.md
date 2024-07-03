@@ -20,7 +20,7 @@
 
 * close blinds
 * In Motive, use exposure 2500 us, LEDs off
-
+* The flights are ordered from 1 to 36. However, the total flights are 30 because 6 flights either failed or the micro uSD failed to record the data.
 ```
 ros2 launch crazyflie launch.py
 ros2 run crazyflie_examples figure8
