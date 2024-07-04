@@ -1,7 +1,7 @@
 # Hardware Set Up
 
 * Crazyflie 2.1
-    * URI: radio://0/80/2M/E7E7E7E702
+    * URI: radio://0/80/2M/E7E7E7E7E7
 * RPM deck
 * uSD-card deck (with config.txt as configuration)
 * total weight with battery: 37 grams
