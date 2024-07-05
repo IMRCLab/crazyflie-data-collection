@@ -79,8 +79,15 @@ if __name__ == '__main__':
         data_usd['fixedFrequency']['rpm.m3'],
         data_usd['fixedFrequency']['rpm.m4']]).T
     
+    pwm = np.array([
+        data_usd['fixedFrequency']['pwm.m1_pwm'],
+        data_usd['fixedFrequency']['pwm.m2_pwm'],
+        data_usd['fixedFrequency']['pwm.m3_pwm'],
+        data_usd['fixedFrequency']['pwm.m4_pwm']]).T
+    
     kw = 4.310657321921365e-08
     force_in_grams = kw * rpm**2
+    force_in_grams_from_pwm = -5.360718677769569 + pwm * 0.0005492858445116151
 
 
     fig, ax = plt.subplots(3, 2, sharex='all')
@@ -93,14 +100,20 @@ if __name__ == '__main__':
     # ax[0,0].plot(time_fF, rpm[:,3])
     # ax[0,0].set_ylabel(f"M4 [rpm]")
 
-    ax[0,1].plot(time_fF, force_in_grams[:,0])
+    ax[0,1].plot(time_fF, force_in_grams[:,0], label="rpm")
+    ax[0,1].plot(time_fF, force_in_grams_from_pwm[:,0], label="pwm")
     ax[0,1].set_ylabel(f"M1 [grams]")
-    ax[1,1].plot(time_fF, force_in_grams[:,1])
+    ax[1,1].plot(time_fF, force_in_grams[:,1], label="rpm")
+    ax[1,1].plot(time_fF, force_in_grams_from_pwm[:,1], label="pwm")
     ax[1,1].set_ylabel(f"M2 [grams]")
-    ax[1,0].plot(time_fF, force_in_grams[:,2])
+    ax[1,0].plot(time_fF, force_in_grams[:,2], label="rpm")
+    ax[1,0].plot(time_fF, force_in_grams_from_pwm[:,2], label="pwm")
     ax[1,0].set_ylabel(f"M3 [grams]")
-    ax[0,0].plot(time_fF, force_in_grams[:,3])
+    ax[0,0].plot(time_fF, force_in_grams[:,3], label="rpm")
+    ax[0,0].plot(time_fF, force_in_grams_from_pwm[:,3], label="pwm")
     ax[0,0].set_ylabel(f"M4 [grams]")
+
+    ax[0,0].legend()
 
     ax[2,0].plot(time_fF, np.sum(force_in_grams, axis=1))
     ax[2,0].set_ylabel(f"total thrust [grams]")
