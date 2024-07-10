@@ -118,6 +118,17 @@ if __name__ == '__main__':
     ax[2,0].plot(time_fF, np.sum(force_in_grams, axis=1))
     ax[2,0].set_ylabel(f"total thrust [grams]")
 
+    # estimating motor delay
+    for m in range(4):
+        best_k = None
+        best_err = 1e6
+        for k in range(-50, 50):
+            err = np.sum(np.abs(force_in_grams[100:-100,m] - force_in_grams_from_pwm[100+k:-100+k,m]))
+            if err < best_err:
+                best_err = err
+                best_k = k
+        print("motor delay [ms]", (time_fF[100+best_k] - time_fF[100])*1000)
+
     # plt.show()
 
     # f_a fun
@@ -147,12 +158,22 @@ if __name__ == '__main__':
     f_u = np.empty((force.shape[0], 3))
     tau_u = np.empty((force.shape[0], 3))
 
+    force2 = force_in_grams_from_pwm / 1000 * 9.81
+    eta2 = np.empty((force2.shape[0], 4))
+    f_u2 = np.empty((force2.shape[0], 3))
+    tau_u2 = np.empty((force2.shape[0], 3))
+
     for k in range(force.shape[0]):
         eta[k] = np.dot(B0, force[k])
         f_u[k] = np.array([0, 0, eta[k,0]])
         tau_u[k] = np.array([eta[k,1], eta[k,2], eta[k,3]])
 
+        eta2[k] = np.dot(B0, force2[k])
+        f_u2[k] = np.array([0, 0, eta2[k,0]])
+        tau_u2[k] = np.array([eta2[k,1], eta2[k,2], eta2[k,3]])
+
     f_a = mass * acc_world - rowan.rotate(q, f_u)
+    f_a2 = mass * acc_world - rowan.rotate(q, f_u2)
     
     fig, ax = plt.subplots(3, 3, sharex='all')
     for k, axis in enumerate(["x", "y", "z"]):
@@ -164,8 +185,11 @@ if __name__ == '__main__':
         ax[1,k].set_ylabel(f"acc world {axis}[m/s^2]")
 
     for k, axis in enumerate(["x", "y", "z"]):
-        ax[2,k].plot(time_fF, f_a[:,k])
+        ax[2,k].plot(time_fF, f_a[:,k], label="rpm")
+        ax[2,k].plot(time_fF, f_a2[:,k], label="pwm")
         ax[2,k].set_ylabel(f"f_a {axis}[N]")
+
+    ax[2,0].legend()
 
     plt.show()
 
