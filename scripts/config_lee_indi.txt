@@ -1,0 +1,62 @@
+1     # version
+512   # buffer size in bytes
+tle    # file name
+0     # enable on startup (0/1)
+on:fixedFrequency
+100   # frequency
+1     # mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous)
+stateEstimate.x
+stateEstimate.y
+stateEstimate.z
+ctrltarget.x
+ctrltarget.y
+ctrltarget.z
+stateEstimate.vx
+stateEstimate.vy
+stateEstimate.vz
+stateEstimate.ax# acc.x
+stateEstimate.ay# acc.y
+stateEstimate.az# acc.z
+ctrltarget.vx
+ctrltarget.vy
+ctrltarget.vz
+ctrlLee.rpyx
+ctrlLee.rpyy
+ctrlLee.rpyz
+ctrlLee.rpydx
+ctrlLee.rpydy
+ctrlLee.rpydz
+ctrlLee.omegax# gyro.x
+ctrlLee.omegay# gyro.y
+ctrlLee.omegaz# gyro.z
+ctrlLee.omegarx
+ctrlLee.omegary
+ctrlLee.omegarz
+ctrlLee.a_rpmx
+ctrlLee.a_rpmy
+ctrlLee.a_rpmz
+ctrlLee.a_rpm_fx
+ctrlLee.a_rpm_fy
+ctrlLee.a_rpm_fz
+ctrlLee.a_imux
+ctrlLee.a_imuy
+ctrlLee.a_imuz
+ctrlLee.a_imu_fx
+ctrlLee.a_imu_fy
+ctrlLee.a_imu_fz
+ctrlLee.tau_rpmx
+ctrlLee.tau_rpmy
+ctrlLee.tau_rpmz
+ctrlLee.tau_rpm_fx
+ctrlLee.tau_rpm_fy
+ctrlLee.tau_rpm_fz
+ctrlLee.tau_gyro_x
+ctrlLee.tau_gyro_y
+ctrlLee.tau_gyro_z
+ctrlLee.tau_gyro_fx
+ctrlLee.tau_gyro_fy
+ctrlLee.tau_gyro_fz
+rpm.m1
+rpm.m2
+rpm.m3
+rpm.m4
