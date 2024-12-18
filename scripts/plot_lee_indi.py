@@ -82,6 +82,14 @@ if __name__ == '__main__':
         data_usd['fixedFrequency']['rpm.m3'],
         data_usd['fixedFrequency']['rpm.m4'],
     ]).T
+
+    pwm = np.array([
+        data_usd['fixedFrequency']['motor.m1'],
+        data_usd['fixedFrequency']['motor.m2'],
+        data_usd['fixedFrequency']['motor.m3'],
+        data_usd['fixedFrequency']['motor.m4'],
+    ]).T
+
     fig, ax = plt.subplots(2, 2, sharex='all', sharey='all')
     ax[0,1].plot(time_fF, rpm[:,0])
     ax[1,1].plot(time_fF, rpm[:,1])
@@ -105,19 +113,79 @@ if __name__ == '__main__':
         cost = cp.sum_squares(8.875 * 9.81 / 1000 - kw * rpm[start_idx:-1,i]**2)
         prob = cp.Problem(cp.Minimize(cost), [])
         prob.solve()
-        print("kappa_f{}: {}".format(i, kw.value))
+        print("kf{}: {}".format(i+1, kw.value))
         kappa_f.append(kw.value)
     kappa_f = np.array(kappa_f)
+
+    # exit()
 
     # kappa_f = np.array([2.139974655714972e-10, 2.3783777845095615e-10, 1.9693330742680727e-10, 2.559402652634741e-10])
 
     force = kappa_f * rpm**2
 
-    fig, ax = plt.subplots(2, 2, sharex='all', sharey='all')
-    ax[0,1].plot(time_fF, force[:,0])
-    ax[1,1].plot(time_fF, force[:,1])
-    ax[1,0].plot(time_fF, force[:,2])
-    ax[0,0].plot(time_fF, force[:,3])
+    # # force -> pwm mapping
+    # pwm_normalized = pwm / 65535.0
+    # pwmToThrustA = []
+    # pwmToThrustB = []
+    # for i in range(4):
+    #     a = cp.Variable()
+    #     b = cp.Variable()
+    #     # a * pwm^2 + b * pwm
+    #     cost = cp.sum_squares(a * pwm_normalized[:,i] **2 + b * pwm_normalized[:,i] - force[:,i])
+    #     prob = cp.Problem(cp.Minimize(cost), [])
+    #     prob.solve()
+    #     print("pwmToThrustA{}: {}".format(i+1, a.value))
+    #     print("pwmToThrustB{}: {}".format(i+1, b.value))
+    #     pwmToThrustA.append(a.value)
+    #     pwmToThrustB.append(b.value)
+    # pwmToThrustA = np.array(pwmToThrustA)
+    # pwmToThrustB = np.array(pwmToThrustB)
+
+    # print(pwmToThrustA, pwmToThrustB)
+
+
+    # fig, ax = plt.subplots(1, 1, sharex='all', sharey='all', squeeze=False)
+    # # ax[0,0].scatter(force[start_idx:-1,0], pwm_normalized[start_idx:-1,0])
+    # # ax[0,0].scatter(force[start_idx:-1,1], pwm_normalized[start_idx:-1,1])
+    # # ax[0,0].scatter(force[start_idx:-1,2], pwm_normalized[start_idx:-1,2])
+    # ax[0,0].scatter(force[:,3], pwm_normalized[:,3])
+    # ax[0,0].scatter(pwmToThrustA[3] * pwm_normalized[:,3]**2 + pwmToThrustB[3] * pwm_normalized[:,3], pwm_normalized[:,3])
+    # plt.show()
+    # exit()
+
+   # force -> pwm mapping
+    pwm_normalized = pwm / 65535.0
+    f2pA = []
+    f2pB = []
+    for i in range(4):
+        a = cp.Variable()
+        b = cp.Variable()
+        # pwm = a + b * force
+        cost = cp.sum_squares(a + b * force[:,i] - pwm_normalized[:,i])
+        prob = cp.Problem(cp.Minimize(cost), [])
+        prob.solve()
+        print("f2pA{}: {}".format(i+1, a.value))
+        print("f2pB{}: {}".format(i+1, b.value))
+        f2pA.append(a.value)
+        f2pB.append(b.value)
+    f2pA = np.array(f2pA)
+    f2pB = np.array(f2pB)
+
+    fig, ax = plt.subplots(1, 1, sharex='all', sharey='all', squeeze=False)
+    # ax[0,0].scatter(force[start_idx:-1,0], pwm_normalized[start_idx:-1,0])
+    # ax[0,0].scatter(force[start_idx:-1,1], pwm_normalized[start_idx:-1,1])
+    # ax[0,0].scatter(force[start_idx:-1,2], pwm_normalized[start_idx:-1,2])
+    for i in range(4):
+        ax[0,0].scatter(force[:,i], pwm_normalized[:,i])
+        ax[0,0].scatter(force[:,i], f2pA[i] + f2pB[i] * force[:,i])
+    # plt.show()
+    # exit()
+
+    # fig, ax = plt.subplots(2, 2, sharex='all', sharey='all')
+    # ax[0,1].plot(time_fF, force[:,0])
+    # ax[1,1].plot(time_fF, force[:,1])
+    # ax[1,0].plot(time_fF, force[:,2])
+    # ax[0,0].plot(time_fF, force[:,3])
     # plt.show()
 
     force_sum = np.sum(force, axis=1)
@@ -131,8 +199,8 @@ if __name__ == '__main__':
     ax[0,0].plot(time_fF, force[:,3], label="M4")
     ax[0,0].legend()
 
-    plt.show()
-    exit()
+    # plt.show()
+    # exit()
 
 
 
