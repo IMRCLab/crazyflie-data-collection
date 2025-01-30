@@ -1,0 +1,41 @@
+1     # version
+512   # buffer size in bytes
+tl    # file name
+0     # enable on startup (0/1)
+on:fixedFrequency
+100   # frequency
+1     # mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous)
+stateEstimate.x
+stateEstimate.y
+stateEstimate.z
+ctrltarget.x
+ctrltarget.y
+ctrltarget.z
+stateEstimate.vx
+stateEstimate.vy
+stateEstimate.vz
+stateEstimate.ax# acc.x
+stateEstimate.ay# acc.y
+stateEstimate.az# acc.z
+ctrltarget.vx
+ctrltarget.vy
+ctrltarget.vz
+ctrlLee.rpyx
+ctrlLee.rpyy
+ctrlLee.rpyz
+ctrlLee.rpydx
+ctrlLee.rpydy
+ctrlLee.rpydz
+ctrlLee.omegax# gyro.x
+ctrlLee.omegay# gyro.y
+ctrlLee.omegaz# gyro.z
+ctrlLee.omegarx
+ctrlLee.omegary
+ctrlLee.omegarz
+ctrlLee.omegaddx
+ctrlLee.omegaddy
+ctrlLee.omegaddz
+rpm.m1
+rpm.m2
+rpm.m3
+rpm.m4

@@ -161,7 +161,7 @@ if __name__ == '__main__':
         a = cp.Variable()
         b = cp.Variable()
         # pwm = a + b * force
-        cost = cp.sum_squares(a + b * force[:,i] - pwm_normalized[:,i])
+        cost = cp.sum_squares(a + b * force[start_idx:,i] - pwm_normalized[start_idx:,i])
         prob = cp.Problem(cp.Minimize(cost), [])
         prob.solve()
         print("f2pA{}: {}".format(i+1, a.value))
@@ -176,8 +176,8 @@ if __name__ == '__main__':
     # ax[0,0].scatter(force[start_idx:-1,1], pwm_normalized[start_idx:-1,1])
     # ax[0,0].scatter(force[start_idx:-1,2], pwm_normalized[start_idx:-1,2])
     for i in range(4):
-        ax[0,0].scatter(force[:,i], pwm_normalized[:,i])
-        ax[0,0].scatter(force[:,i], f2pA[i] + f2pB[i] * force[:,i])
+        ax[0,0].scatter(force[start_idx:,i], pwm_normalized[start_idx:,i])
+        ax[0,0].scatter(force[start_idx:,i], f2pA[i] + f2pB[i] * force[start_idx:,i])
     # plt.show()
     # exit()
 
@@ -249,7 +249,12 @@ if __name__ == '__main__':
         data_usd['fixedFrequency']['ctrlLee.omegary'],
         data_usd['fixedFrequency']['ctrlLee.omegarz']]).T
     
-    fig, ax = plt.subplots(4, 3, sharex='all')
+    # omega_des_dot = np.array([
+    #     data_usd['fixedFrequency']['ctrlLee.omegaddx'],
+    #     data_usd['fixedFrequency']['ctrlLee.omegaddy'],
+    #     data_usd['fixedFrequency']['ctrlLee.omegaddz']]).T
+    
+    fig, ax = plt.subplots(5, 3, sharex='all')
     for k, axis in enumerate(["x", "y", "z"]):
         ax[0,k].plot(time_fF, pos[:,k])
         ax[0,k].plot(time_fF, pos_d[:,k])
@@ -259,13 +264,13 @@ if __name__ == '__main__':
         ax[1,k].plot(time_fF, vel_d[:,k])
         ax[1,k].set_ylabel(f"vel {axis}[m/s]")
 
-        ax[2,k].plot(time_fF, rpy[:,k])
-        ax[2,k].plot(time_fF, rpy_d[:,k])
-        ax[2,k].set_ylabel(f"rot {axis} [?]")
+        ax[2,k].plot(time_fF, np.degrees(rpy[:,k]))
+        ax[2,k].plot(time_fF, np.degrees(rpy_d[:,k]))
+        ax[2,k].set_ylabel(f"rot {axis} [deg]")
 
-        ax[3,k].plot(time_fF, omega[:,k])
-        ax[3,k].plot(time_fF, omega_d[:,k])
-        ax[3,k].set_ylabel(f"ang vel {axis}[rad/s]")
+        ax[3,k].plot(time_fF, np.degrees(omega[:,k]))
+        ax[3,k].plot(time_fF, np.degrees(omega_d[:,k]))
+        ax[3,k].set_ylabel(f"ang vel {axis}[deg/s]")
 
 
     # position INDI part
