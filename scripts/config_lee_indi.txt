@@ -60,3 +60,12 @@ rpm.m1
 rpm.m2
 rpm.m3
 rpm.m4
+motor.m1
+motor.m2
+motor.m3
+motor.m4
+pm.vbatMV
+powerDist.m1d
+powerDist.m2d
+powerDist.m3d
+powerDist.m4d

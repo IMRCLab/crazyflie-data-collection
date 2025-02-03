@@ -133,10 +133,12 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(4,1, sharex='all')
     for k, axis in enumerate(["1", "2", "3", "4"]):
         ax[k].grid()
-        ax[k].plot(time_fF, force[:,k])
+        ax[k].plot(time_fF, force[:,k], label="RPM")
         ax[k].set_ylabel(f"f{axis} [N]")
 
-        ax[k].plot(time_fF, force_des[:,k])
+        ax[k].plot(time_fF, force_des[:,k], label="desired by ctrl")
+    ax[0].legend() 
+    
 
     # # force -> pwm mapping
     # pwm_normalized = pwm / 65535.0
