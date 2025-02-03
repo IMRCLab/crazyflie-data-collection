@@ -122,6 +122,21 @@ if __name__ == '__main__':
     # kappa_f = np.array([2.139974655714972e-10, 2.3783777845095615e-10, 1.9693330742680727e-10, 2.559402652634741e-10])
 
     force = kappa_f * rpm**2
+    force_des = np.array([
+        data_usd['fixedFrequency']['powerDist.m1d'],
+        data_usd['fixedFrequency']['powerDist.m2d'],
+        data_usd['fixedFrequency']['powerDist.m3d'],
+        data_usd['fixedFrequency']['powerDist.m4d'],
+    ]).T
+
+    # plot rpm -> forces and pwm -> forces 
+    fig, ax = plt.subplots(4,1, sharex='all')
+    for k, axis in enumerate(["1", "2", "3", "4"]):
+        ax[k].grid()
+        ax[k].plot(time_fF, force[:,k])
+        ax[k].set_ylabel(f"f{axis} [N]")
+
+        ax[k].plot(time_fF, force_des[:,k])
 
     # # force -> pwm mapping
     # pwm_normalized = pwm / 65535.0
