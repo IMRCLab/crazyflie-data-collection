@@ -24,7 +24,8 @@ if __name__ == '__main__':
     # time_eP = (data_usd['estPose']['timestamp'] - start_time) / 1e3
 
     end_time = time_fF[-1]
-    # print(end_time)
+
+    print(end_time)
     # print(np.argwhere(time_fF >= end_time - 3))
     # exit()
 
@@ -89,6 +90,7 @@ if __name__ == '__main__':
         data_usd['fixedFrequency']['motor.m3'],
         data_usd['fixedFrequency']['motor.m4'],
     ]).T
+    vbat = np.array(data_usd['fixedFrequency']['pm.vbatMV']) / 1000.0
 
     fig, ax = plt.subplots(2, 2, sharex='all', sharey='all')
     ax[0,1].plot(time_fF, rpm[:,0])
@@ -129,6 +131,16 @@ if __name__ == '__main__':
         data_usd['fixedFrequency']['powerDist.m4d'],
     ]).T
 
+
+    # pwm = a + b * rpm + c * rpm^2
+    rpm2pwmA = -0.006958373447616477
+    rpm2pwmB = 1.933811561926461e-05
+    rpm2pwmC = 1.0376220271145036e-09
+    # rpm_des_from_pwm = (-b +/- sqrt(b^2 - 4ac))2/c
+    pwm_normalized = pwm / 65536.0
+    rpm_des_from_pwm = (rpm2pwmB - np.sqrt(rpm2pwmB**2 - 4*rpm2pwmC*(rpm2pwmA-pwm_normalized)))/(2*rpm2pwmC)
+    force_des_from_pwm = kappa_f * rpm_des_from_pwm**2
+
     # plot rpm -> forces and pwm -> forces 
     fig, ax = plt.subplots(4,1, sharex='all')
     for k, axis in enumerate(["1", "2", "3", "4"]):
@@ -137,6 +149,7 @@ if __name__ == '__main__':
         ax[k].set_ylabel(f"f{axis} [N]")
 
         ax[k].plot(time_fF, force_des[:,k], label="desired by ctrl")
+        ax[k].plot(time_fF, force_des_from_pwm[:,k], label="PWM")
     ax[0].legend() 
     
 
@@ -170,31 +183,31 @@ if __name__ == '__main__':
     # plt.show()
     # exit()
 
-   # force -> pwm mapping
-    pwm_normalized = pwm / 65535.0
-    f2pA = []
-    f2pB = []
-    for i in range(4):
-        a = cp.Variable()
-        b = cp.Variable()
-        # pwm = a + b * force
-        cost = cp.sum_squares(a + b * force[start_idx:,i] - pwm_normalized[start_idx:,i])
-        prob = cp.Problem(cp.Minimize(cost), [])
-        prob.solve()
-        print("f2pA{}: {}".format(i+1, a.value))
-        print("f2pB{}: {}".format(i+1, b.value))
-        f2pA.append(a.value)
-        f2pB.append(b.value)
-    f2pA = np.array(f2pA)
-    f2pB = np.array(f2pB)
+#    # force -> pwm mapping
+#     pwm_normalized = pwm / 65535.0
+#     f2pA = []
+#     f2pB = []
+#     for i in range(4):
+#         a = cp.Variable()
+#         b = cp.Variable()
+#         # pwm = a + b * force
+#         cost = cp.sum_squares(a + b * force[:,i] - pwm_normalized[:,i])
+#         prob = cp.Problem(cp.Minimize(cost), [])
+#         prob.solve()
+#         print("f2pA{}: {}".format(i+1, a.value))
+#         print("f2pB{}: {}".format(i+1, b.value))
+#         f2pA.append(a.value)
+#         f2pB.append(b.value)
+#     f2pA = np.array(f2pA)
+#     f2pB = np.array(f2pB)
 
-    fig, ax = plt.subplots(1, 1, sharex='all', sharey='all', squeeze=False)
-    # ax[0,0].scatter(force[start_idx:-1,0], pwm_normalized[start_idx:-1,0])
-    # ax[0,0].scatter(force[start_idx:-1,1], pwm_normalized[start_idx:-1,1])
-    # ax[0,0].scatter(force[start_idx:-1,2], pwm_normalized[start_idx:-1,2])
-    for i in range(4):
-        ax[0,0].scatter(force[start_idx:,i], pwm_normalized[start_idx:,i])
-        ax[0,0].scatter(force[start_idx:,i], f2pA[i] + f2pB[i] * force[start_idx:,i])
+#     fig, ax = plt.subplots(1, 1, sharex='all', sharey='all', squeeze=False)
+#     # ax[0,0].scatter(force[start_idx:-1,0], pwm_normalized[start_idx:-1,0])
+#     # ax[0,0].scatter(force[start_idx:-1,1], pwm_normalized[start_idx:-1,1])
+#     # ax[0,0].scatter(force[start_idx:-1,2], pwm_normalized[start_idx:-1,2])
+#     for i in range(4):
+#         ax[0,0].scatter(force[:,i], pwm_normalized[:,i])
+#         ax[0,0].scatter(force[:,i], f2pA[i] + f2pB[i] * force[:,i])
     # plt.show()
     # exit()
 
@@ -271,7 +284,16 @@ if __name__ == '__main__':
     #     data_usd['fixedFrequency']['ctrlLee.omegaddy'],
     #     data_usd['fixedFrequency']['ctrlLee.omegaddz']]).T
     
-    fig, ax = plt.subplots(5, 3, sharex='all')
+    # fig, ax = plt.subplots(5, 3, sharex='all')
+    error = np.linalg.norm(pos - pos_d, axis=1)
+    error_xy = np.linalg.norm(pos[:,0:2] - pos_d[:,0:2], axis=1)
+
+    start_idx = np.argwhere(time_fF >= 3)[0][0]
+    end_idx = np.argwhere(time_fF >= end_time - 3)[0][0]
+    print("error", np.mean(error[start_idx:end_idx]))
+    print("error_xy", np.mean(error_xy[start_idx:end_idx]))
+
+    fig, ax = plt.subplots(4, 3, sharex='all')
     for k, axis in enumerate(["x", "y", "z"]):
         ax[0,k].plot(time_fF, pos[:,k])
         ax[0,k].plot(time_fF, pos_d[:,k])
