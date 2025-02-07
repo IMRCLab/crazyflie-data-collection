@@ -357,7 +357,15 @@ if __name__ == '__main__':
         fig, ax = plt.subplots(3, 1, sharex='all')
         for k, axis in enumerate(["x", "y", "z"]):
             ax[k].plot(time_fF, pvel_filtered[:,k])
-            ax[k].set_ylabel(f"pvel {axis}[m/s]")    
+            ax[k].set_ylabel(f"pvel {axis}[m/s]") 
+
+        error = np.linalg.norm(ppos - pos_d, axis=1)
+        error_xy = np.linalg.norm(ppos[:,0:2] - pos_d[:,0:2], axis=1)
+
+        start_idx = np.argwhere(time_fF >= 3)[0][0]
+        end_idx = np.argwhere(time_fF >= end_time - 3)[0][0]
+        print("error (payload)", np.mean(error[start_idx:end_idx]))
+        print("error_xy (pyaload)", np.mean(error_xy[start_idx:end_idx]))   
         
     # position INDI part
     a_rpm = np.array([
