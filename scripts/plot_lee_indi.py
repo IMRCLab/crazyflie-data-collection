@@ -238,6 +238,7 @@ if __name__ == '__main__':
 
 
     # ctrl lee part
+    ctype = "ctrlLeeP"
 
     pos = np.array([
         data_usd['fixedFrequency']['stateEstimate.x'],
@@ -260,29 +261,29 @@ if __name__ == '__main__':
         data_usd['fixedFrequency']['ctrltarget.vz']]).T
     
     rpy = np.array([
-        data_usd['fixedFrequency']['ctrlLee.rpyx'],
-        data_usd['fixedFrequency']['ctrlLee.rpyy'],
-        data_usd['fixedFrequency']['ctrlLee.rpyz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.rpyx'],
+        data_usd['fixedFrequency'][f'{ctype}.rpyy'],
+        data_usd['fixedFrequency'][f'{ctype}.rpyz']]).T
     
     rpy_d = np.array([
-        data_usd['fixedFrequency']['ctrlLee.rpydx'],
-        data_usd['fixedFrequency']['ctrlLee.rpydy'],
-        data_usd['fixedFrequency']['ctrlLee.rpydz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.rpydx'],
+        data_usd['fixedFrequency'][f'{ctype}.rpydy'],
+        data_usd['fixedFrequency'][f'{ctype}.rpydz']]).T
     
     omega = np.array([
-        data_usd['fixedFrequency']['ctrlLee.omegax'],
-        data_usd['fixedFrequency']['ctrlLee.omegay'],
-        data_usd['fixedFrequency']['ctrlLee.omegaz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.omegax'],
+        data_usd['fixedFrequency'][f'{ctype}.omegay'],
+        data_usd['fixedFrequency'][f'{ctype}.omegaz']]).T
     
     omega_d = np.array([
-        data_usd['fixedFrequency']['ctrlLee.omegarx'],
-        data_usd['fixedFrequency']['ctrlLee.omegary'],
-        data_usd['fixedFrequency']['ctrlLee.omegarz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.omegarx'],
+        data_usd['fixedFrequency'][f'{ctype}.omegary'],
+        data_usd['fixedFrequency'][f'{ctype}.omegarz']]).T
     
     # omega_des_dot = np.array([
-    #     data_usd['fixedFrequency']['ctrlLee.omegaddx'],
-    #     data_usd['fixedFrequency']['ctrlLee.omegaddy'],
-    #     data_usd['fixedFrequency']['ctrlLee.omegaddz']]).T
+    #     data_usd['fixedFrequency'][f'{ctype}.omegaddx'],
+    #     data_usd['fixedFrequency'][f'{ctype}.omegaddy'],
+    #     data_usd['fixedFrequency'][f'{ctype}.omegaddz']]).T
     
     # fig, ax = plt.subplots(5, 3, sharex='all')
     error = np.linalg.norm(pos - pos_d, axis=1)
@@ -311,27 +312,81 @@ if __name__ == '__main__':
         ax[3,k].plot(time_fF, np.degrees(omega_d[:,k]))
         ax[3,k].set_ylabel(f"ang vel {axis}[deg/s]")
 
+    if ctype == "ctrlLeeP":
 
+        ppos = np.array([
+        data_usd['fixedFrequency']['stateEstimateZ.px'],
+        data_usd['fixedFrequency']['stateEstimateZ.py'],
+        data_usd['fixedFrequency']['stateEstimateZ.pz']]).T/1000
+        
+        est_acc = np.array([
+            data_usd['fixedFrequency']['ctrlLeeP.plAccx'],
+            data_usd['fixedFrequency']['ctrlLeeP.plAccy'],
+            data_usd['fixedFrequency']['ctrlLeeP.plAccz']]).T
+        
+
+        des_acc = np.array([
+            data_usd['fixedFrequency']['ctrlLeeP.plAccx_des'],
+            data_usd['fixedFrequency']['ctrlLeeP.plAccy_des'],
+            data_usd['fixedFrequency']['ctrlLeeP.plAccz_des']]).T
+        des_acc_tq = np.array([
+            data_usd['fixedFrequency']['ctrlLeeP.plAccx_tq'],
+            data_usd['fixedFrequency']['ctrlLeeP.plAccy_tq'],
+            data_usd['fixedFrequency']['ctrlLeeP.plAccz_tq']]).T 
+
+
+        pvel_filtered = np.array([
+        data_usd['fixedFrequency']['ctrlLeeP.plVelx'],
+        data_usd['fixedFrequency']['ctrlLeeP.plVely'],
+        data_usd['fixedFrequency']['ctrlLeeP.plVelz']]).T
+    
+    
+        fig, ax = plt.subplots(3, 1, sharex='all')
+        for k, axis in enumerate(["x", "y", "z"]):
+            ax[k].plot(time_fF, des_acc_tq[:,k], label="tq")
+            ax[k].plot(time_fF, des_acc[:,k], label="des")
+            ax[k].set_ylabel(f"pacc {axis}[m/s^2]")
+        ax[0].legend()
+
+        fig, ax = plt.subplots(3, 1, sharex='all')
+        for k, axis in enumerate(["x", "y", "z"]):
+            ax[k].plot(time_fF, ppos[:,k], label="pos payload")
+            ax[k].set_ylabel(f"ppos {axis}[m]")
+        ax[0].legend()
+
+        fig, ax = plt.subplots(3, 1, sharex='all')
+        for k, axis in enumerate(["x", "y", "z"]):
+            ax[k].plot(time_fF, pvel_filtered[:,k])
+            ax[k].set_ylabel(f"pvel {axis}[m/s]") 
+
+        error = np.linalg.norm(ppos - pos_d, axis=1)
+        error_xy = np.linalg.norm(ppos[:,0:2] - pos_d[:,0:2], axis=1)
+
+        start_idx = np.argwhere(time_fF >= 3)[0][0]
+        end_idx = np.argwhere(time_fF >= end_time - 3)[0][0]
+        print("error (payload)", np.mean(error[start_idx:end_idx]))
+        print("error_xy (pyaload)", np.mean(error_xy[start_idx:end_idx]))   
+        
     # position INDI part
     a_rpm = np.array([
-        data_usd['fixedFrequency']['ctrlLee.a_rpmx'],
-        data_usd['fixedFrequency']['ctrlLee.a_rpmy'],
-        data_usd['fixedFrequency']['ctrlLee.a_rpmz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.a_rpmx'],
+        data_usd['fixedFrequency'][f'{ctype}.a_rpmy'],
+        data_usd['fixedFrequency'][f'{ctype}.a_rpmz']]).T
     
     a_rpm_filtered = np.array([
-        data_usd['fixedFrequency']['ctrlLee.a_rpm_fx'],
-        data_usd['fixedFrequency']['ctrlLee.a_rpm_fy'],
-        data_usd['fixedFrequency']['ctrlLee.a_rpm_fz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.a_rpm_fx'],
+        data_usd['fixedFrequency'][f'{ctype}.a_rpm_fy'],
+        data_usd['fixedFrequency'][f'{ctype}.a_rpm_fz']]).T
     
     a_imu = np.array([
-        data_usd['fixedFrequency']['ctrlLee.a_imux'],
-        data_usd['fixedFrequency']['ctrlLee.a_imuy'],
-        data_usd['fixedFrequency']['ctrlLee.a_imuz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.a_imux'],
+        data_usd['fixedFrequency'][f'{ctype}.a_imuy'],
+        data_usd['fixedFrequency'][f'{ctype}.a_imuz']]).T
     
     a_imu_filtered = np.array([
-        data_usd['fixedFrequency']['ctrlLee.a_imu_fx'],
-        data_usd['fixedFrequency']['ctrlLee.a_imu_fy'],
-        data_usd['fixedFrequency']['ctrlLee.a_imu_fz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.a_imu_fx'],
+        data_usd['fixedFrequency'][f'{ctype}.a_imu_fy'],
+        data_usd['fixedFrequency'][f'{ctype}.a_imu_fz']]).T
 
     fig, ax = plt.subplots(2, 3, sharex='all')
     for k, axis in enumerate(["x", "y", "z"]):
@@ -345,24 +400,24 @@ if __name__ == '__main__':
     # attitude indi part
 
     tau_rpm = np.array([
-        data_usd['fixedFrequency']['ctrlLee.tau_rpmx'],
-        data_usd['fixedFrequency']['ctrlLee.tau_rpmy'],
-        data_usd['fixedFrequency']['ctrlLee.tau_rpmz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.tau_rpmx'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_rpmy'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_rpmz']]).T
     
     tau_rpm_filtered = np.array([
-        data_usd['fixedFrequency']['ctrlLee.tau_rpm_fx'],
-        data_usd['fixedFrequency']['ctrlLee.tau_rpm_fy'],
-        data_usd['fixedFrequency']['ctrlLee.tau_rpm_fz']]).T
+        data_usd['fixedFrequency'][f'{ctype}.tau_rpm_fx'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_rpm_fy'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_rpm_fz']]).T
     
     tau_imu = np.array([
-        data_usd['fixedFrequency']['ctrlLee.tau_gyro_x'],
-        data_usd['fixedFrequency']['ctrlLee.tau_gyro_y'],
-        data_usd['fixedFrequency']['ctrlLee.tau_gyro_z']]).T
+        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_x'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_y'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_z']]).T
     
     tau_imu_filtered = np.array([
-        data_usd['fixedFrequency']['ctrlLee.tau_gyro_fx'],
-        data_usd['fixedFrequency']['ctrlLee.tau_gyro_fy'],
-        data_usd['fixedFrequency']['ctrlLee.tau_gyro_fz']]).T    
+        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_fx'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_fy'],
+        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_fz']]).T    
 
     for k, axis in enumerate(["x", "y", "z"]):
         # ax[1,k].plot(time_fF, tau_rpm[:,k], label='from RPM')
