@@ -124,33 +124,33 @@ if __name__ == '__main__':
     # kappa_f = np.array([2.139974655714972e-10, 2.3783777845095615e-10, 1.9693330742680727e-10, 2.559402652634741e-10])
 
     force = kappa_f * rpm**2
-    force_des = np.array([
-        data_usd['fixedFrequency']['powerDist.m1d'],
-        data_usd['fixedFrequency']['powerDist.m2d'],
-        data_usd['fixedFrequency']['powerDist.m3d'],
-        data_usd['fixedFrequency']['powerDist.m4d'],
-    ]).T
+    # force_des = np.array([
+    #     data_usd['fixedFrequency']['powerDist.m1d'],
+    #     data_usd['fixedFrequency']['powerDist.m2d'],
+    #     data_usd['fixedFrequency']['powerDist.m3d'],
+    #     data_usd['fixedFrequency']['powerDist.m4d'],
+    # ]).T
 
 
-    # pwm = a + b * rpm + c * rpm^2
-    rpm2pwmA = -0.006958373447616477
-    rpm2pwmB = 1.933811561926461e-05
-    rpm2pwmC = 1.0376220271145036e-09
-    # rpm_des_from_pwm = (-b +/- sqrt(b^2 - 4ac))2/c
-    pwm_normalized = pwm / 65536.0
-    rpm_des_from_pwm = (rpm2pwmB - np.sqrt(rpm2pwmB**2 - 4*rpm2pwmC*(rpm2pwmA-pwm_normalized)))/(2*rpm2pwmC)
-    force_des_from_pwm = kappa_f * rpm_des_from_pwm**2
+    # # pwm = a + b * rpm + c * rpm^2
+    # rpm2pwmA = -0.006958373447616477
+    # rpm2pwmB = 1.933811561926461e-05
+    # rpm2pwmC = 1.0376220271145036e-09
+    # # rpm_des_from_pwm = (-b +/- sqrt(b^2 - 4ac))2/c
+    # pwm_normalized = pwm / 65536.0
+    # rpm_des_from_pwm = (rpm2pwmB - np.sqrt(rpm2pwmB**2 - 4*rpm2pwmC*(rpm2pwmA-pwm_normalized)))/(2*rpm2pwmC)
+    # force_des_from_pwm = kappa_f * rpm_des_from_pwm**2
 
-    # plot rpm -> forces and pwm -> forces 
-    fig, ax = plt.subplots(4,1, sharex='all')
-    for k, axis in enumerate(["1", "2", "3", "4"]):
-        ax[k].grid()
-        ax[k].plot(time_fF, force[:,k], label="RPM")
-        ax[k].set_ylabel(f"f{axis} [N]")
+    # # plot rpm -> forces and pwm -> forces 
+    # fig, ax = plt.subplots(4,1, sharex='all')
+    # for k, axis in enumerate(["1", "2", "3", "4"]):
+    #     ax[k].grid()
+    #     ax[k].plot(time_fF, force[:,k], label="RPM")
+    #     ax[k].set_ylabel(f"f{axis} [N]")
 
-        ax[k].plot(time_fF, force_des[:,k], label="desired by ctrl")
-        ax[k].plot(time_fF, force_des_from_pwm[:,k], label="PWM")
-    ax[0].legend() 
+    #     ax[k].plot(time_fF, force_des[:,k], label="desired by ctrl")
+    #     ax[k].plot(time_fF, force_des_from_pwm[:,k], label="PWM")
+    # ax[0].legend() 
     
 
     # # force -> pwm mapping
@@ -238,7 +238,7 @@ if __name__ == '__main__':
 
 
     # ctrl lee part
-    ctype = "ctrlLeeP"
+    ctype = "ctrlLee"
 
     pos = np.array([
         data_usd['fixedFrequency']['stateEstimate.x'],
@@ -246,19 +246,19 @@ if __name__ == '__main__':
         data_usd['fixedFrequency']['stateEstimate.z']]).T
     
     pos_d = np.array([
-        data_usd['fixedFrequency']['ctrltarget.x'],
-        data_usd['fixedFrequency']['ctrltarget.y'],
-        data_usd['fixedFrequency']['ctrltarget.z']]).T
+        data_usd['fixedFrequency']['ctrltargetZ.x'],
+        data_usd['fixedFrequency']['ctrltargetZ.y'],
+        data_usd['fixedFrequency']['ctrltargetZ.z']]).T
     
     vel = np.array([
-        data_usd['fixedFrequency']['stateEstimate.vx'],
-        data_usd['fixedFrequency']['stateEstimate.vy'],
-        data_usd['fixedFrequency']['stateEstimate.vz']]).T
+        data_usd['fixedFrequency']['stateEstimateZ.vx'],
+        data_usd['fixedFrequency']['stateEstimateZ.vy'],
+        data_usd['fixedFrequency']['stateEstimateZ.vz']]).T
     
     vel_d = np.array([
-        data_usd['fixedFrequency']['ctrltarget.vx'],
-        data_usd['fixedFrequency']['ctrltarget.vy'],
-        data_usd['fixedFrequency']['ctrltarget.vz']]).T
+        data_usd['fixedFrequency']['ctrltargetZ.vx'],
+        data_usd['fixedFrequency']['ctrltargetZ.vy'],
+        data_usd['fixedFrequency']['ctrltargetZ.vz']]).T
     
     rpy = np.array([
         data_usd['fixedFrequency'][f'{ctype}.rpyx'],
@@ -368,20 +368,20 @@ if __name__ == '__main__':
         print("error_xy (pyaload)", np.mean(error_xy[start_idx:end_idx]))   
         
     # position INDI part
-    a_rpm = np.array([
-        data_usd['fixedFrequency'][f'{ctype}.a_rpmx'],
-        data_usd['fixedFrequency'][f'{ctype}.a_rpmy'],
-        data_usd['fixedFrequency'][f'{ctype}.a_rpmz']]).T
+    # a_rpm = np.array([
+    #     data_usd['fixedFrequency'][f'{ctype}.a_rpmx'],
+    #     data_usd['fixedFrequency'][f'{ctype}.a_rpmy'],
+    #     data_usd['fixedFrequency'][f'{ctype}.a_rpmz']]).T
     
     a_rpm_filtered = np.array([
         data_usd['fixedFrequency'][f'{ctype}.a_rpm_fx'],
         data_usd['fixedFrequency'][f'{ctype}.a_rpm_fy'],
         data_usd['fixedFrequency'][f'{ctype}.a_rpm_fz']]).T
     
-    a_imu = np.array([
-        data_usd['fixedFrequency'][f'{ctype}.a_imux'],
-        data_usd['fixedFrequency'][f'{ctype}.a_imuy'],
-        data_usd['fixedFrequency'][f'{ctype}.a_imuz']]).T
+    # a_imu = np.array([
+    #     data_usd['fixedFrequency'][f'{ctype}.a_imux'],
+    #     data_usd['fixedFrequency'][f'{ctype}.a_imuy'],
+    #     data_usd['fixedFrequency'][f'{ctype}.a_imuz']]).T
     
     a_imu_filtered = np.array([
         data_usd['fixedFrequency'][f'{ctype}.a_imu_fx'],
@@ -399,20 +399,20 @@ if __name__ == '__main__':
 
     # attitude indi part
 
-    tau_rpm = np.array([
-        data_usd['fixedFrequency'][f'{ctype}.tau_rpmx'],
-        data_usd['fixedFrequency'][f'{ctype}.tau_rpmy'],
-        data_usd['fixedFrequency'][f'{ctype}.tau_rpmz']]).T
+    # tau_rpm = np.array([
+        # data_usd['fixedFrequency'][f'{ctype}.tau_rpmx'],
+        # data_usd['fixedFrequency'][f'{ctype}.tau_rpmy'],
+        # data_usd['fixedFrequency'][f'{ctype}.tau_rpmz']]).T
     
     tau_rpm_filtered = np.array([
         data_usd['fixedFrequency'][f'{ctype}.tau_rpm_fx'],
         data_usd['fixedFrequency'][f'{ctype}.tau_rpm_fy'],
         data_usd['fixedFrequency'][f'{ctype}.tau_rpm_fz']]).T
     
-    tau_imu = np.array([
-        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_x'],
-        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_y'],
-        data_usd['fixedFrequency'][f'{ctype}.tau_gyro_z']]).T
+    # tau_imu = np.array([
+        # data_usd['fixedFrequency'][f'{ctype}.tau_gyro_x'],
+        # data_usd['fixedFrequency'][f'{ctype}.tau_gyro_y'],
+        # data_usd['fixedFrequency'][f'{ctype}.tau_gyro_z']]).T
     
     tau_imu_filtered = np.array([
         data_usd['fixedFrequency'][f'{ctype}.tau_gyro_fx'],

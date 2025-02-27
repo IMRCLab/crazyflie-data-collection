@@ -1,0 +1,89 @@
+1     # version
+512   # buffer size in bytes
+lpii   # file name
+0     # enable on startup (0/1)
+on:fixedFrequency
+100   # frequency
+1     # mode (0: disabled, 1: synchronous stabilizer, 2: asynchronous)
+stateEstimate.x
+stateEstimate.y
+stateEstimate.z
+ctrltarget.x
+ctrltarget.y
+ctrltarget.z
+stateEstimate.vx
+stateEstimate.vy
+stateEstimate.vz
+stateEstimate.ax# acc.x
+stateEstimate.ay# acc.y
+stateEstimate.az# acc.z
+stateEstimateZ.px
+stateEstimateZ.py
+stateEstimateZ.pz
+ctrltarget.vx
+ctrltarget.vy
+ctrltarget.vz
+ctrlLeeP.rpyx
+ctrlLeeP.rpyy
+ctrlLeeP.rpyz
+ctrlLeeP.rpydx
+ctrlLeeP.rpydy
+ctrlLeeP.rpydz
+ctrlLeeP.omegax# gyro.x
+ctrlLeeP.omegay# gyro.y
+ctrlLeeP.omegaz# gyro.z
+ctrlLeeP.omegarx
+ctrlLeeP.omegary
+ctrlLeeP.omegarz
+ctrlLeeP.a_rpmx
+ctrlLeeP.a_rpmy
+ctrlLeeP.a_rpmz
+ctrlLeeP.a_rpm_fx
+ctrlLeeP.a_rpm_fy
+ctrlLeeP.a_rpm_fz
+ctrlLeeP.a_imux
+ctrlLeeP.a_imuy
+ctrlLeeP.a_imuz
+ctrlLeeP.a_imu_fx
+ctrlLeeP.a_imu_fy
+ctrlLeeP.a_imu_fz
+ctrlLeeP.tau_rpmx
+ctrlLeeP.tau_rpmy
+ctrlLeeP.tau_rpmz
+ctrlLeeP.tau_rpm_fx
+ctrlLeeP.tau_rpm_fy
+ctrlLeeP.tau_rpm_fz
+ctrlLeeP.tau_gyro_x
+ctrlLeeP.tau_gyro_y
+ctrlLeeP.tau_gyro_z
+ctrlLeeP.tau_gyro_fx
+ctrlLeeP.tau_gyro_fy
+ctrlLeeP.tau_gyro_fz
+ctrlLeeP.plAccx
+ctrlLeeP.plAccy
+ctrlLeeP.plAccz
+ctrlLeeP.plVelx
+ctrlLeeP.plVely
+ctrlLeeP.plVelz
+ctrlLeeP.plAccx_des
+ctrlLeeP.plAccy_des
+ctrlLeeP.plAccz_des
+ctrlLeeP.plAccx_tq
+ctrlLeeP.plAccy_tq
+ctrlLeeP.plAccz_tq
+ctrlLeeP.nnfx
+ctrlLeeP.nnfy
+rpm.m1
+rpm.m2
+rpm.m3
+rpm.m4
+motor.m1
+motor.m2
+motor.m3
+motor.m4
+pm.vbatMV
+powerDist.m1d
+powerDist.m2d
+powerDist.m3d
+powerDist.m4d
+
