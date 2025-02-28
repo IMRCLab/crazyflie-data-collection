@@ -159,7 +159,7 @@ if __name__ == '__main__':
     for k, axis in enumerate(["x", "y", "z"]):
         ax[0,k].plot(t, pos[:,k], label="data")
 
-        sf.fit(t, pos[:,k], 200)
+        sf.fit(t, pos[:,k], 50)
         spline = sf.eval(t)
         ax[0,k].plot(t, spline, label="spline")
         ax[0,k].set_ylabel(f"pos {axis}[m]")
@@ -176,7 +176,7 @@ if __name__ == '__main__':
 
         ax[2,k].set_ylabel(f"acc {axis}[m/s^2]")
 
-
+    ax[0,0].legend()
     plt.show()
 
     acc_spline = np.array(acc_spline).T
@@ -188,24 +188,23 @@ if __name__ == '__main__':
     for k, axis in enumerate(["x", "y", "z"]):
         ax[0,k].plot(t, pos_payload[:,k], label="data")
 
-        sf.fit(t, pos_payload[:,k], 200)
+        sf.fit(t, pos_payload[:,k], 50)
         spline = sf.eval(t)
-        ax[0,k].plot(t, spline, label="spline")
-        ax[0,k].set_ylabel(f"pos {axis}[m]")
+        ax[0,k].plot(t, spline, label="payload spline")
+        ax[0,k].set_ylabel(f"payload pos {axis}[m]")
 
         ax[1,k].plot(t, vel[:,k], label="data")
         spline = sf.evald(t)
         ax[1,k].plot(t, spline, label="spline")
-        ax[1,k].set_ylabel(f"vel {axis}[m/s]")
+        ax[1,k].set_ylabel(f"payload vel {axis}[m/s]")
 
         ax[2,k].plot(t, acc[:,k], label="data")
         spline = sf.evaldd(t)
         ax[2,k].plot(t, spline, label="spline")
         acc_payload_spline.append(spline)
 
-        ax[2,k].set_ylabel(f"acc {axis}[m/s^2]")
-
-
+        ax[2,k].set_ylabel(f"payload acc {axis}[m/s^2]")
+    ax[0,0].legend()
     plt.show()
 
     acc_payload_spline = np.array(acc_payload_spline).T
@@ -247,11 +246,35 @@ if __name__ == '__main__':
 
 
 
-    fa = []
+    fa = [] # fa on uav
+    fap = [] # fa on payload
+
+    fac = [] # fa on uav
+
+
     for i in range(force.shape[0]):
         T = (-mass_p * cable_q[i]).dot(acc_payload_spline[i] - g)
-        fa.append(mass * acc[i] - mass * g - rowan.rotate(q[i], u[i]) - T*cable_q[i])
+
+        T2 = mass_p * np.linalg.norm(acc_payload_spline[i] -g)
+        print(T, T2)
+
+        # fa.append(mass * acc[i] - mass * g - rowan.rotate(q[i], u[i]) - T*cable_q[i])
+        fa.append((mass * acc[i] - mass * g - rowan.rotate(q[i], u[i]) - T2*cable_q[i])/mass)
+
+        fac.append(mass_p * acc_payload_spline[i] + mass * acc[i] - rowan.rotate(q[i], u[i]) - mass * g - mass_p * g)
+        fap.append((mass_p * acc_payload_spline[i] + T2 * cable_q[i] - mass_p * g)/mass_p)
+
     fa = np.array(fa)
+    fap = np.array(fap)
+    fac = np.array(fac)
+
+
+
+    # # fa version on payload
+    # fap = []
+    # for i in range(force.shape[0]):
+    #     fap.append(mass_p * acc_payload_spline[i] + mass * acc[i] - rowan.rotate(q[i], u[i]) - mass * g - mass_p * g)
+    # fap = np.array(fap)
 
     a_rpm_filtered = np.array([
         data_usd['fixedFrequency'][f'ctrlLeeP.a_rpm_fx'],
@@ -265,13 +288,26 @@ if __name__ == '__main__':
 
     fig, ax = plt.subplots(1, 3, sharex='all', squeeze=False)
     for k, axis in enumerate(["x", "y", "z"]):
-        ax[0,k].plot(t, fa[:,k], label="fa")
-        ax[0,k].plot(t, -(a_rpm_filtered-a_imu_filtered)[:,k]*mass, label="INDI")
+        ax[0,k].plot(t, fa[:,k], label="fa (on UAV)")
+        ax[0,k].plot(t, fap[:,k], label="fa (on payload)")
+        # ax[0,k].plot(t, fac[:,k], label="fa (classic)")
+        # ax[0,k].plot(t, -(a_rpm_filtered-a_imu_filtered)[:,k]*mass, label="INDI", alpha=0.5)
         ax[0,k].set_ylabel(f"f_a {axis}")
     ax[0,0].legend()
 
     plt.show()
-    exit()
+
+
+
+    fig, ax = plt.subplots(1, 3, sharex='all', squeeze=False)
+    for k, axis in enumerate(["x", "y", "z"]):
+        ax[0,k].plot(t, fa[:,k], label="fa (on UAV)")
+        ax[0,k].plot(t, fap[:,k], label="fa (on payload)")
+        ax[0,k].plot(t, -(a_rpm_filtered-a_imu_filtered)[:,k], label="INDI", alpha=0.5)
+        ax[0,k].set_ylabel(f"f_a {axis}")
+    ax[0,0].legend()
+
+    plt.show()
 
 
     sf = SplineFitter()
@@ -321,9 +357,9 @@ if __name__ == '__main__':
         data_usd['fixedFrequency'][f'ctrlLeeP.tau_rpm_fz']]).T
         
     tau_imu_filtered = np.array([
-        data_usd['fixedFrequency'][f'ctrlLeeP.tau_gyro_fx'],
-        data_usd['fixedFrequency'][f'ctrlLeeP.tau_gyro_fy'],
-        data_usd['fixedFrequency'][f'ctrlLeeP.tau_gyro_fz']]).T 
+        data_usd['fixedFrequency'][f'ctrlLeeP.tau_imu_fx'],
+        data_usd['fixedFrequency'][f'ctrlLeeP.tau_imu_fy'],
+        data_usd['fixedFrequency'][f'ctrlLeeP.tau_imu_fz']]).T 
 
     fig, ax = plt.subplots(1, 3, sharex='all', squeeze=False)
     for k, axis in enumerate(["x", "y", "z"]):
