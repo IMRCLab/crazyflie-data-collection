@@ -47,7 +47,7 @@ class CollectData:
         self._file.write("thrust[g],pwm,vbat[V],rpm1,rpm2,rpm3,rpm4\n");
 
         # The definition of the logconfig can be made before connecting
-        self._lg_stab = LogConfig(name='data', period_in_ms=10)
+        self._lg_stab = LogConfig(name='data', period_in_ms=1000)
         # self._lg_stab.add_variable('loadcell.weight', 'float')
         self._lg_stab.add_variable('motor.m1', 'uint16_t')
         self._lg_stab.add_variable('pm.vbatMV', 'uint16_t')
@@ -88,9 +88,10 @@ class CollectData:
         """Callback froma the log API when data arrives"""
         print('[%d][%s]: %s' % (timestamp, logconf.name, data))
         self._file.write("?,{},{},{},{},{},{}\n".format(
-            data['pwm.m1_pwm'],
+            data['motor.m1'],
             data['pm.vbatMV']/ 1000,
             0, 0, 0, 0))
+        self._file.flush()
             # data['rpm.m1'],
             # data['rpm.m2'],
             # data['rpm.m3'],
@@ -115,14 +116,18 @@ class CollectData:
     def _ramp_motors(self):
         thrust_mult = 1
         thrust_step = 5000
+        thrust_min = 10000
+        thrust_max = 35000
+
         time_step = 5 #0.1
-        thrust = 0
+        thrust = thrust_min
+
 
         # # Unlock startup thrust protection
         # for i in range(0, 100):
         #     self._cf.commander.send_setpoint(0, 0, 0, 0)
 
-        localization = Localization(self._cf)
+        # localization = Localization(self._cf)
 
         # self._cf.param.set_value('motor.batCompensation', 0)
         self._cf.param.set_value('motorPowerSet.m1', 0)
@@ -133,22 +138,22 @@ class CollectData:
         self._cf.param.set_value('motorPowerSet.enable', 1)
         # self._cf.param.set_value('system.forceArm', 1)
         iters = 0
-        while self.is_connected and iters < 2: #thrust >= 0:
-            thrust += thrust_step * thrust_mult
-            if thrust >= 65536 or thrust < 0: #65536
+        while self.is_connected and iters < 2000: #thrust >= 0:
+            if thrust > thrust_max or thrust < thrust_min: #65536
             # if thrust >= 20000 or thrust < 0:
                 thrust_mult *= -1
                 thrust += thrust_step * thrust_mult
-                break
+                # break
             print(thrust)
             # self._cf.commander.send_setpoint(roll, pitch, yawrate, thrust)
-            localization.send_emergency_stop_watchdog()
+            # localization.send_emergency_stop_watchdog()
             self._cf.param.set_value('motorPowerSet.m1', str(thrust))
             self._cf.param.set_value('motorPowerSet.m2', str(thrust))
             self._cf.param.set_value('motorPowerSet.m3', str(thrust))
             self._cf.param.set_value('motorPowerSet.m4', str(thrust))
 
             time.sleep(time_step)
+            thrust += thrust_step * thrust_mult
             iters += 1
 
         self._cf.param.set_value('motorPowerSet.enable', 0)
