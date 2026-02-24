@@ -8,6 +8,7 @@ import yaml
 from threading import Thread
 import random
 import copy
+import math
 
 import cflib.crtp
 from cflib.crazyflie import Crazyflie
@@ -139,8 +140,13 @@ class CollectData:
         self._cf.param.set_value('motorPowerSet.enable', 1)
         # self._cf.param.set_value('system.forceArm', 1)
         # iters = 0
+        thrust = 0
         while self.is_connected and self.battery_low < 3: #thrust >= 0:
-            thrust = int(random.uniform(20000, 65536))
+            old_thrust = thrust
+            while True:
+                thrust = int(random.uniform(20000, 65536))
+                if math.fabs(thrust-old_thrust) > 1500:
+                    break
             print(thrust)
             localization.send_emergency_stop_watchdog()
             self._cf.param.set_value('motorPowerSet.m1', str(thrust))
