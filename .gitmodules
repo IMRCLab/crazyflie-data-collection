@@ -1,3 +1,3 @@
 [submodule "brushless_flights/crazyflie-firmware"]
-	path = brushless_flights/crazyflie-firmware
+	path = brushless_prototype_flights/crazyflie-firmware
 	url = git@github.com:IMRCLab/crazyflie-firmware.git
